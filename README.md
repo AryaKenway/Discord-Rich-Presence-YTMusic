@@ -48,5 +48,5 @@
 
 
 
-##### \[Demo Image] (GithubImages/DemoImage)
+##### \[Demo Image] (GithubImages/DemoImage.png)
 
