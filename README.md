@@ -1,48 +1,52 @@
-# \# YouTube Music Discord Rich Presence
+##### YouTube Music Discord RPC
 
-# 
+##### Overview
 
-# This project connects YouTube Music playback from your browser to Discord Rich Presence. It detects the current track, artist, playback state, and syncs it live to your Discord status with a YouTube Music logo. The timer behaves correctly and pauses when playback is paused.
+##### 
 
-# 
+##### This project syncs your YouTube Music playback directly to your Discord status through a Node.js bridge and a browser extension. It provides full support for Firefox and Opera browsers.
 
-# It works through a lightweight browser extension and a local RPC bridge that communicates with Discord. The setup supports both Firefox and Opera browsers.
+##### Core Features
 
-# 
+##### 
 
-# The system reads metadata directly from YouTube Music and updates Discord in near real time, making it useful for showcasing listening activity during normal usage.
+##### The system performs live synchronization of song titles and artist names. It includes a smart timer that calculates elapsed and remaining playback time. The status updates or clears automatically when music is paused. The entire build is optimized for extremely low CPU and RAM consumption.
 
-# 
+##### Node.js Setup
 
-# \## Preview
+##### 
 
-# 
+##### Begin by cloning the repository to your local machine. Open a terminal window inside the /server directory. Execute the npm install command to download the necessary dependencies. Launch the bridge by running node server.js.
 
-# !\[Demo](./Discord-Rich-Presence-YTMusic/GithubImages/DemoImage.png)
 
-# 
 
-# \## Setup
 
-# 
 
-# Install Node.js, install dependencies, and run the local server. Load the extension temporarily in your browser and open YouTube Music. Once a track is played, the status appears automatically in Discord.
+##### Firefox Installation
 
-# 
+##### 
 
-# \## Features
+##### Navigate to the about:debugging page in your browser. Click on the This Firefox option in the sidebar. Select the Load Temporary Add-on button and choose the manifest.json file from your project folder.
 
-# 
 
-# Displays song title and artist, syncs playback time, pauses correctly when music is paused, and shows a custom YouTube Music logo in Discord.
 
-# 
 
-# \## Notes
 
-# 
+##### Opera Installation
 
-# Discord desktop must be running for Rich Presence to work. The extension runs only on YouTube Music and does not access any unrelated data.
+##### 
 
-# 
+##### Navigate to the opera://extensions page. Enable Developer Mode using the toggle in the top right corner. Click the Load unpacked button and select the extension directory.
+
+##### Requirements
+
+##### 
+
+##### The latest Node.js LTS version is required for the server. The Discord Desktop application must be running on your system. You must also have the Activity Status setting enabled within your Discord user profile.
+
+
+
+
+
+##### \[Demo Image] (GithubImages/DemoImage)
 
