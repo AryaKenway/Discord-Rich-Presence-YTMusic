@@ -4,7 +4,7 @@
 
 ##### 
 
-##### This project syncs your YouTube Music playback directly to your Discord status through a Node.js bridge and a browser extension. It provides full support for Firefox and Opera browsers.
+##### This project syncs your YouTube Music playback directly to your Discord status through a Node.js bridge and a browser extension. It provides full support for Firefox browser.
 
 ##### Core Features
 
@@ -28,15 +28,6 @@
 
 ##### Navigate to the about:debugging page in your browser. Click on the This Firefox option in the sidebar. Select the Load Temporary Add-on button and choose the manifest.json file from your project folder.
 
-
-
-
-
-##### Opera Installation
-
-##### 
-
-##### Navigate to the opera://extensions page. Enable Developer Mode using the toggle in the top right corner. Click the Load unpacked button and select the extension directory.
 
 ##### Requirements
 
