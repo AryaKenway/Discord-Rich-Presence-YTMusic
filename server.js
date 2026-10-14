@@ -17,6 +17,7 @@ const clientId = '1491107428505227264';
 let client;
 let reconnectTimer;
 let lastCoverStatus;
+let lastSongUrl;
 let wasPaused;
 
 function scheduleDiscordReconnect() {
@@ -70,8 +71,33 @@ function getExternalImageUrl(imageUrl) {
     return url.length <= 256 ? url : null;
 }
 
+function getYouTubeMusicTrackUrl(value) {
+    if (typeof value !== 'string') return null;
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(value);
+    } catch {
+        return null;
+    }
+
+    const videoId = parsedUrl.searchParams.get('v');
+    if (
+        parsedUrl.protocol !== 'https:' ||
+        parsedUrl.hostname !== 'music.youtube.com' ||
+        parsedUrl.username ||
+        parsedUrl.password ||
+        parsedUrl.pathname !== '/watch' ||
+        !/^[\w-]{11}$/.test(videoId || '')
+    ) {
+        return null;
+    }
+
+    return `https://music.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+}
+
 app.post('/update', (req, res) => {
-    const { title, artist, isPaused, current, total, coverUrl } = req.body;
+    const { title, artist, isPaused, current, total, coverUrl, trackUrl } = req.body;
 
     if (!client) {
         return res.status(503).send('Waiting for Discord Desktop to connect.');
@@ -99,12 +125,15 @@ app.post('/update', (req, res) => {
     // Construct the strings FIRST, then truncate the whole thing
     const detailsStr = finalizeStr(title);
     const coverImage = getExternalImageUrl(coverUrl);
+    const songUrl = getYouTubeMusicTrackUrl(trackUrl);
+    const songUrlChanged = songUrl !== lastSongUrl;
     const currentSeconds = parseTimeToSeconds(current);
     const totalSeconds = parseTimeToSeconds(total);
     const activity = {
         name: 'YouTube Music',
         type: 2,
         details: detailsStr,
+        ...(songUrl && { details_url: songUrl }),
         state: finalizeStr(`by ${artist}`),
         assets: {
             large_image: coverImage || 'yt_logo',
@@ -132,9 +161,18 @@ app.post('/update', (req, res) => {
         lastCoverStatus = coverStatus;
     }
 
+    if (songUrlChanged) {
+        console.log(`Presence song link: ${songUrl || 'not set (invalid or missing track URL)'}`);
+        lastSongUrl = songUrl;
+    }
+
     client.request('SET_ACTIVITY', {
         pid: process.pid,
         activity,
+    }).then(() => {
+        if (songUrlChanged && songUrl) {
+            console.log('Discord RPC accepted activity update with song link.');
+        }
     }).catch(err => console.error('RPC Error (Playing):', err.message));
     res.sendStatus(200);
 });

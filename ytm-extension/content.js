@@ -17,11 +17,23 @@ function getCoverUrl() {
     return coverUrl?.replace(/w\d+-h\d+/, 'w512-h512');
 }
 
+function getTrackUrl() {
+    const pageUrl = new URL(window.location.href);
+    const videoId = pageUrl.searchParams.get('v');
+
+    if (pageUrl.hostname !== 'music.youtube.com' || !/^[\w-]{11}$/.test(videoId || '')) {
+        return null;
+    }
+
+    return `https://music.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+}
+
 function updateDiscord() {
     const title = document.querySelector('yt-formatted-string.title.style-scope.ytmusic-player-bar')?.title;
     const artist = document.querySelector('.byline.style-scope.ytmusic-player-bar')?.innerText;
     const timeInfo = document.querySelector('.time-info.ytmusic-player-bar')?.innerText; // "1:23 / 4:56"
     const coverUrl = getCoverUrl();
+    const trackUrl = getTrackUrl();
     
     const playPauseBtn = document.querySelector('#play-pause-button');
     const isPaused = playPauseBtn?.getAttribute('title') === 'Play';
@@ -37,7 +49,8 @@ function updateDiscord() {
                 isPaused,
                 current: parts[0].trim(),
                 total: parts[1].trim(),
-                coverUrl
+                coverUrl,
+                trackUrl
             })
         }).then(response => {
             if (!response.ok) {
