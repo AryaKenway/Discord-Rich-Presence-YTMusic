@@ -16,7 +16,7 @@
 
 ##### 
 
-##### Begin by cloning the repository to your local machine. Open a terminal window inside the /server directory. Execute the npm install command to download the necessary dependencies. Launch the bridge by running node server.js.
+For development, install Node.js, run `npm install` from the repository root, and start the bridge with `node server.js`.
 
 
 
@@ -29,11 +29,22 @@
 ##### Navigate to the about:debugging page in your browser. Click on the This Firefox option in the sidebar. Select the Load Temporary Add-on button and choose the manifest.json file from your project folder.
 
 
+##### Windows Installer
+
+##### 
+
+The Windows installer bundles the bridge, its production dependencies, and Node.js; users do not need to install Node.js or run npm. Discord Desktop and the Firefox add-on are still required and installed separately. The bridge retries its Discord connection if Discord is still starting.
+
+To build the installer from source on 64-bit Windows, install Node.js 24 and Inno Setup 6, then run `npm run build:installer`. The setup executable is written to the `dist` folder. The GitHub Actions workflow also builds the installer when manually run or when a `bridge-v*` tag is pushed; download its artifact from the workflow run.
+
+The installer can launch the bridge when setup finishes, adds a Start Menu shortcut and uninstaller, and lets users optionally enable automatic startup at Windows sign-in. The Firefox extension is not included.
+
+
 ##### Requirements
 
 ##### 
 
-##### The latest Node.js LTS version is required for the server. The Discord Desktop application must be running on your system. You must also have the Activity Status setting enabled within your Discord user profile.
+Discord Desktop must be installed and running, and Activity Status must be enabled in Discord. Node.js is needed only to run the bridge from source or build the installer; it is bundled in the installer.
 
 
 

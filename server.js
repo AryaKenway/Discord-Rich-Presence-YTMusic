@@ -8,9 +8,37 @@ app.use(express.json());
 app.use(cors());
 
 const clientId = '1491107428505227264'; 
-const client = new RPC.Client({ transport: 'ipc' });
+let client;
+let reconnectTimer;
 let lastCoverStatus;
 let wasPaused;
+
+function scheduleDiscordReconnect() {
+    if (reconnectTimer) return;
+    reconnectTimer = setTimeout(() => {
+        reconnectTimer = undefined;
+        connectToDiscord();
+    }, 5000);
+    reconnectTimer.unref();
+}
+
+function connectToDiscord() {
+    const rpcClient = new RPC.Client({ transport: 'ipc' });
+    rpcClient.on('disconnected', () => {
+        if (client === rpcClient) {
+            client = undefined;
+            console.error('Discord RPC disconnected; retrying in 5 seconds.');
+            scheduleDiscordReconnect();
+        }
+    });
+    rpcClient.login({ clientId }).then(() => {
+        client = rpcClient;
+        console.log('Discord RPC Connected!');
+    }).catch(err => {
+        console.error('Discord RPC connection failed:', err.message);
+        scheduleDiscordReconnect();
+    });
+}
 
 // Helper to convert "MM:SS" or "HH:MM:SS" to total seconds
 function parseTimeToSeconds(timeStr) {
@@ -40,6 +68,10 @@ function getExternalImageKey(imageUrl) {
 
 app.post('/update', (req, res) => {
     const { title, artist, isPaused, current, total, coverUrl } = req.body;
+
+    if (!client) {
+        return res.status(503).send('Waiting for Discord Desktop to connect.');
+    }
 
     if (isPaused) {
         if (!wasPaused) {
@@ -98,7 +130,6 @@ app.post('/update', (req, res) => {
     }).catch(err => console.error('RPC Error (Playing):', err.message));
     res.sendStatus(200);
 });
-client.login({ clientId }).then(() => {
-    console.log('Discord RPC Connected!');
-    app.listen(3000, () => console.log('Bridge server running on port 3000'));
-});
+
+app.listen(3000, 'localhost', () => console.log('Bridge server running on http://localhost:3000'));
+connectToDiscord();
