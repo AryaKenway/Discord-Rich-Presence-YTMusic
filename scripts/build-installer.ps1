@@ -38,8 +38,18 @@ if (-not $npmCommand) {
     throw 'npm.cmd was not found. Install Node.js LTS before building the installer.'
 }
 & $npmCommand.Source ci --omit=dev --prefix $stageDir
-if ($LASTEXITCODE -ne 0) {
-    throw "Installing locked production dependencies into the staging directory failed with exit code $LASTEXITCODE."
+$installExitCode = $LASTEXITCODE
+if ($installExitCode -ne 0) {
+    $npmCache = (& $npmCommand.Source config get cache).Trim()
+    $npmLogDirectory = Join-Path $npmCache '_logs'
+    $latestNpmLog = Get-ChildItem -LiteralPath $npmLogDirectory -Filter '*debug-0.log' -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime |
+        Select-Object -Last 1
+    if ($latestNpmLog) {
+        Write-Output "Last npm debug log ($($latestNpmLog.FullName)):"
+        Get-Content -LiteralPath $latestNpmLog.FullName -Tail 80
+    }
+    throw "Installing locked production dependencies into the staging directory failed with exit code $installExitCode."
 }
 
 $compiler = Get-Command ISCC.exe -ErrorAction SilentlyContinue
