@@ -37,12 +37,15 @@ $npmCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue
 if (-not $npmCommand) {
     throw 'npm.cmd was not found. Install Node.js LTS before building the installer.'
 }
-& $npmCommand.Source ci --omit=dev --prefix $stageDir
+$npmCache = Join-Path ([System.IO.Path]::GetTempPath()) ("ytm-installer-npm-cache-" + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
+$installStartedAt = Get-Date
+& $npmCommand.Source ci --omit=dev --prefix $stageDir --cache $npmCache
 $installExitCode = $LASTEXITCODE
 if ($installExitCode -ne 0) {
-    $npmCache = (& $npmCommand.Source config get cache).Trim()
     $npmLogDirectory = Join-Path $npmCache '_logs'
     $latestNpmLog = Get-ChildItem -LiteralPath $npmLogDirectory -Filter '*debug-0.log' -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -ge $installStartedAt.AddSeconds(-2) } |
         Sort-Object LastWriteTime |
         Select-Object -Last 1
     if ($latestNpmLog) {
@@ -51,6 +54,7 @@ if ($installExitCode -ne 0) {
     }
     throw "Installing locked production dependencies into the staging directory failed with exit code $installExitCode."
 }
+Remove-Item -LiteralPath $npmCache -Recurse -Force
 
 $compiler = Get-Command ISCC.exe -ErrorAction SilentlyContinue
 if (-not $compiler) {
