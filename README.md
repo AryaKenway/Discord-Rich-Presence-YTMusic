@@ -10,7 +10,7 @@
 
 ##### 
 
-##### The system performs live synchronization of song titles and artist names. Discord's activity timestamps provide an elapsed/total timer and progress bar while music plays. The activity is cleared while music is paused to prevent Discord from displaying its own elapsed activity timer, then restored when playback resumes. The YouTube Music logo is used as the activity image; dynamic song covers are not reliably supported by Discord Rich Presence.
+##### The system performs live synchronization of song titles, artist names, and high-resolution album artwork. Discord's activity timestamps provide an elapsed/total timer and progress bar while music plays. The album cover is shown as the large activity image with the YouTube Music logo overlaid as the small image. If artwork is unavailable or Discord cannot use its external URL, the YouTube Music logo is used as the large image. The activity is cleared while music is paused to prevent Discord from displaying its own elapsed activity timer, then restored when playback resumes.
 
 ##### Node.js Setup
 

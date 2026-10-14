@@ -1,11 +1,17 @@
 const RPC = require('discord-rpc');
 const express = require('express');
 const cors = require('cors');
-const crypto = require('crypto');
 
+const extensionOrigin = 'https://music.youtube.com';
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: extensionOrigin }));
+app.use((req, res, next) => {
+    if (req.get('Origin') !== extensionOrigin) {
+        return res.status(403).send('Requests must originate from YouTube Music.');
+    }
+    next();
+});
 
 const clientId = '1491107428505227264'; 
 let client;
@@ -48,7 +54,7 @@ function parseTimeToSeconds(timeStr) {
     return 0;
 }
 
-function getExternalImageKey(imageUrl) {
+function getExternalImageUrl(imageUrl) {
     if (typeof imageUrl !== 'string') return null;
 
     let parsedUrl;
@@ -61,9 +67,7 @@ function getExternalImageKey(imageUrl) {
     if (parsedUrl.protocol !== 'https:' || parsedUrl.username || parsedUrl.password) return null;
 
     const url = parsedUrl.toString();
-    const urlHash = crypto.createHash('sha256').update(url).digest('hex');
-    const imageKey = `mp:external/${urlHash}/${url}`;
-    return imageKey.length <= 256 ? imageKey : null;
+    return url.length <= 256 ? url : null;
 }
 
 app.post('/update', (req, res) => {
@@ -94,7 +98,7 @@ app.post('/update', (req, res) => {
 
     // Construct the strings FIRST, then truncate the whole thing
     const detailsStr = finalizeStr(title);
-    const coverImage = getExternalImageKey(coverUrl);
+    const coverImage = getExternalImageUrl(coverUrl);
     const currentSeconds = parseTimeToSeconds(current);
     const totalSeconds = parseTimeToSeconds(total);
     const activity = {
@@ -105,6 +109,10 @@ app.post('/update', (req, res) => {
         assets: {
             large_image: coverImage || 'yt_logo',
             large_text: coverImage ? finalizeStr(title) : 'YouTube Music',
+            ...(coverImage && {
+                small_image: 'yt_logo',
+                small_text: 'YouTube Music',
+            }),
         },
         instance: false,
     };
