@@ -14,10 +14,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
 
@@ -29,7 +29,7 @@ jobs:
         run: ./scripts/build-installer.ps1
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: YouTube-Music-Discord-Bridge-Windows
           path: dist/YouTube-Music-Discord-Bridge-Setup.exe

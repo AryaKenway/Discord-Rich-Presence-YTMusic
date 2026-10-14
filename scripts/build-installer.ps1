@@ -12,8 +12,15 @@ New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 
 Copy-Item (Join-Path $repoRoot 'server.js') $stageDir
-Copy-Item (Join-Path $repoRoot 'package.json') $stageDir
-Copy-Item (Join-Path $repoRoot 'package-lock.json') $stageDir
+$sourcePackage = Get-Content (Join-Path $repoRoot 'package.json') -Raw | ConvertFrom-Json
+$stagedPackage = @{
+    name = 'ytm-discord-presence-bridge'
+    version = '1.0.0'
+    private = $true
+    type = 'commonjs'
+    dependencies = $sourcePackage.dependencies
+}
+$stagedPackage | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $stageDir 'package.json') -Encoding utf8
 
 $nodeExecutable = (& node -p 'process.execPath').Trim()
 if (-not (Test-Path $nodeExecutable)) {
@@ -29,7 +36,7 @@ $npmCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue
 if (-not $npmCommand) {
     throw 'npm.cmd was not found. Install Node.js LTS before building the installer.'
 }
-& $npmCommand.Source ci --omit=dev --prefix $stageDir
+& $npmCommand.Source install --omit=dev --prefix $stageDir
 if ($LASTEXITCODE -ne 0) {
     throw "Installing production dependencies into the staging directory failed with exit code $LASTEXITCODE."
 }
