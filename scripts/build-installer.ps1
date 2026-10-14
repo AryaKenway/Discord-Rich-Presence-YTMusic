@@ -40,7 +40,7 @@ if (-not $npmCommand) {
 $npmCache = Join-Path ([System.IO.Path]::GetTempPath()) ("ytm-installer-npm-cache-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
 $installStartedAt = Get-Date
-& $npmCommand.Source ci --omit=dev --prefix $stageDir --cache $npmCache
+& $npmCommand.Source ci --omit=dev --omit=optional --prefix $stageDir --cache $npmCache
 $installExitCode = $LASTEXITCODE
 if ($installExitCode -ne 0) {
     $npmLogDirectory = Join-Path $npmCache '_logs'
