@@ -21,6 +21,7 @@ $stagedPackage = @{
     dependencies = $sourcePackage.dependencies
 }
 $stagedPackage | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $stageDir 'package.json') -Encoding utf8
+Copy-Item (Join-Path $repoRoot 'package-lock.json') $stageDir
 
 $nodeExecutable = (& node -p 'process.execPath').Trim()
 if (-not (Test-Path $nodeExecutable)) {
@@ -36,9 +37,9 @@ $npmCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue
 if (-not $npmCommand) {
     throw 'npm.cmd was not found. Install Node.js LTS before building the installer.'
 }
-& $npmCommand.Source install --omit=dev --prefix $stageDir
+& $npmCommand.Source ci --omit=dev --prefix $stageDir
 if ($LASTEXITCODE -ne 0) {
-    throw "Installing production dependencies into the staging directory failed with exit code $LASTEXITCODE."
+    throw "Installing locked production dependencies into the staging directory failed with exit code $LASTEXITCODE."
 }
 
 $compiler = Get-Command ISCC.exe -ErrorAction SilentlyContinue
