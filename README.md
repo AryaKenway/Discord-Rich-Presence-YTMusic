@@ -4,13 +4,13 @@
 
 ##### 
 
-##### This project syncs your YouTube Music playback directly to your Discord status through a Node.js bridge and a browser extension. It provides full support for Firefox browser.
+##### This project syncs your YouTube Music playback directly to your Discord status through a Node.js bridge and a Firefox browser extension.
 
 ##### Core Features
 
 ##### 
 
-##### The system performs live synchronization of song titles and artist names. It includes a smart timer that calculates elapsed and remaining playback time. The status updates or clears automatically when music is paused. The entire build is optimized for extremely low CPU and RAM consumption.
+##### The system performs live synchronization of song titles and artist names. Discord's activity timestamps provide an elapsed/total timer and progress bar while music plays. The activity is cleared while music is paused to prevent Discord from displaying its own elapsed activity timer, then restored when playback resumes. The YouTube Music logo is used as the activity image; dynamic song covers are not reliably supported by Discord Rich Presence.
 
 ##### Node.js Setup
 
@@ -40,6 +40,3 @@
 
 
 ![Demo Image](GithubImages/DemoImage.png)
-
-
-

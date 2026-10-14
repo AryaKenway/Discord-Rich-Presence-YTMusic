@@ -1,13 +1,16 @@
 const RPC = require('discord-rpc');
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const clientId = 'Insert ID Here'; 
+const clientId = '1491107428505227264'; 
 const client = new RPC.Client({ transport: 'ipc' });
+let lastCoverStatus;
+let wasPaused;
 
 // Helper to convert "MM:SS" or "HH:MM:SS" to total seconds
 function parseTimeToSeconds(timeStr) {
@@ -17,8 +20,38 @@ function parseTimeToSeconds(timeStr) {
     return 0;
 }
 
+function getExternalImageKey(imageUrl) {
+    if (typeof imageUrl !== 'string') return null;
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(imageUrl);
+    } catch {
+        return null;
+    }
+
+    if (parsedUrl.protocol !== 'https:' || parsedUrl.username || parsedUrl.password) return null;
+
+    const url = parsedUrl.toString();
+    const urlHash = crypto.createHash('sha256').update(url).digest('hex');
+    const imageKey = `mp:external/${urlHash}/${url}`;
+    return imageKey.length <= 256 ? imageKey : null;
+}
+
 app.post('/update', (req, res) => {
-    let { title, artist, isPaused, current, total } = req.body;
+    const { title, artist, isPaused, current, total, coverUrl } = req.body;
+
+    if (isPaused) {
+        if (!wasPaused) {
+            client.clearActivity().then(() => {
+                console.log('Presence cleared while music is paused');
+            }).catch(err => console.error('RPC Error (Clear paused activity):', err.message));
+            wasPaused = true;
+        }
+        return res.sendStatus(200);
+    }
+
+    wasPaused = false;
 
     // A more robust truncate that ensures the FINAL string is under 128
     const finalizeStr = (str) => {
@@ -28,35 +61,41 @@ app.post('/update', (req, res) => {
     };
 
     // Construct the strings FIRST, then truncate the whole thing
-    const detailsStr = finalizeStr(isPaused ? `Paused: ${title}` : title);
-    const stateStr = finalizeStr(`by ${artist}`);
+    const detailsStr = finalizeStr(title);
+    const coverImage = getExternalImageKey(coverUrl);
+    const currentSeconds = parseTimeToSeconds(current);
+    const totalSeconds = parseTimeToSeconds(total);
+    const activity = {
+        name: 'YouTube Music',
+        type: 2,
+        details: detailsStr,
+        state: finalizeStr(`by ${artist}`),
+        assets: {
+            large_image: coverImage || 'yt_logo',
+            large_text: coverImage ? finalizeStr(title) : 'YouTube Music',
+        },
+        instance: false,
+    };
 
-    if (isPaused) {
-        client.setActivity({
-            details: detailsStr,
-            state: stateStr,
-            largeImageKey: 'yt_logo',
-            largeImageText: 'YouTube Music',
-            instance: false,
-        }).catch(err => console.error("RPC Error (Paused):", err.message));
-    } else {
-        const currentSeconds = parseTimeToSeconds(current);
-        const totalSeconds = parseTimeToSeconds(total);
-        
-        const now = Date.now();
-        const startTimestamp = Math.floor(now - (currentSeconds * 1000));
-        const endTimestamp = Math.floor(startTimestamp + (totalSeconds * 1000));
-
-        client.setActivity({
-            details: detailsStr,
-            state: stateStr,
-            startTimestamp,
-            endTimestamp,
-            largeImageKey: 'yt_logo',
-            largeImageText: 'YouTube Music',
-            instance: false,
-        }).catch(err => console.error("RPC Error (Playing):", err.message));
+    if (!isPaused) {
+        const startTimestamp = Date.now() - (currentSeconds * 1000);
+        const endTimestamp = startTimestamp + (totalSeconds * 1000);
+        activity.timestamps = {
+            start: startTimestamp,
+            end: endTimestamp,
+        };
     }
+
+    const coverStatus = coverImage ? 'external cover art' : 'YouTube Music logo fallback';
+    if (coverStatus !== lastCoverStatus) {
+        console.log(`Presence image: ${coverStatus}`);
+        lastCoverStatus = coverStatus;
+    }
+
+    client.request('SET_ACTIVITY', {
+        pid: process.pid,
+        activity,
+    }).catch(err => console.error('RPC Error (Playing):', err.message));
     res.sendStatus(200);
 });
 client.login({ clientId }).then(() => {

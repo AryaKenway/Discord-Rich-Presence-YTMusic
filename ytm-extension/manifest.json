@@ -1,13 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "YTM Discord Bridge",
-  "version": "1.0",
-  "permissions": ["tabs"],
-  "host_permissions": ["*://music.youtube.com/*", "http://localhost:3000/*"],
+  "name": "YouTube Music Discord RPC",
+  "version": "1.11",
+  "description": "Discord Rich Presence for YouTube Music",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ytm-rpc-arya@acharya.local",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "permissions": [
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://music.youtube.com/*",
+    "http://localhost:3000/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://music.youtube.com/*"],
-      "js": ["content.js"]
+      "matches": [
+        "*://music.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ]
 }

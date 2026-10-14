@@ -2,6 +2,7 @@ function updateDiscord() {
     const title = document.querySelector('yt-formatted-string.title.style-scope.ytmusic-player-bar')?.title;
     const artist = document.querySelector('.byline.style-scope.ytmusic-player-bar')?.innerText;
     const timeInfo = document.querySelector('.time-info.ytmusic-player-bar')?.innerText; // "1:23 / 4:56"
+    const coverUrl = document.querySelector('ytmusic-player-bar img')?.currentSrc;
     
     const playPauseBtn = document.querySelector('#play-pause-button');
     const isPaused = playPauseBtn?.getAttribute('title') === 'Play';
@@ -16,9 +17,14 @@ function updateDiscord() {
                 artist, 
                 isPaused,
                 current: parts[0].trim(),
-                total: parts[1].trim()
+                total: parts[1].trim(),
+                coverUrl
             })
-        }).catch(err => console.log("Bridge server not running?"));
+        }).then(response => {
+            if (!response.ok) {
+                console.error(`Discord RPC bridge returned HTTP ${response.status}`);
+            }
+        }).catch(err => console.log("Bridge server not running?", err));
     }
 }
 
