@@ -14,8 +14,8 @@ New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 Copy-Item (Join-Path $repoRoot 'server.js') $stageDir
 $sourcePackage = Get-Content (Join-Path $repoRoot 'package.json') -Raw | ConvertFrom-Json
 $stagedPackage = @{
-    name = 'ytm-discord-presence-bridge'
-    version = '1.0.0'
+    name = $sourcePackage.name
+    version = $sourcePackage.version
     private = $true
     type = 'commonjs'
     dependencies = $sourcePackage.dependencies

@@ -35,7 +35,7 @@ For development, install Node.js, run `npm install` from the repository root, an
 
 The Windows installer bundles the bridge, its production dependencies, and Node.js; users do not need to install Node.js or run npm. Discord Desktop and the Firefox add-on are still required and installed separately. The bridge retries its Discord connection if Discord is still starting.
 
-To build the installer from source on 64-bit Windows, install Node.js 24 and Inno Setup 6, then run `npm run build:installer`. The setup executable is written to the `dist` folder. The GitHub Actions workflow also builds the installer when manually run or when a `bridge-v*` tag is pushed; download its artifact from the workflow run. The build creates a clean staging package with its own valid version and installs production dependencies from the committed lockfile using `npm ci`, so the installer build is repeatable and does not depend on the repository package version metadata.
+To build the installer from source on 64-bit Windows, install Node.js 24 and Inno Setup 6, then run `npm run build:installer`. The setup executable is written to the `dist` folder. The GitHub Actions workflow also builds the installer when manually run or when a `bridge-v*` tag is pushed; download its artifact from the workflow run. The build creates a clean staging package whose name and version match the committed lockfile, then installs production dependencies from that lockfile using `npm ci` for a repeatable build.
 
 The installer can launch the bridge when setup finishes, adds a Start Menu shortcut and uninstaller, and lets users optionally enable automatic startup at Windows sign-in. The Firefox extension is not included.
 
