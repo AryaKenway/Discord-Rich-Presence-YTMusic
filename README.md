@@ -2,11 +2,11 @@
 
 Show your current YouTube Music song, artist, album art, and playback progress in your Discord status.
 
-## Demos
+## Demo
 
-[Full Discord activity](DiscordExtended.mp4)
+![Full Discord activity](DiscordExtended.gif)
 
-[Discord activity in the miniplayer](MiniplayerDiscord.mp4)
+![Discord activity in the miniplayer](MiniplayerDiscord.gif)
 
 ## Setup
 
