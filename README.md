@@ -28,6 +28,8 @@ For development, install Node.js, run `npm install` from the repository root, an
 
 ##### Navigate to the about:debugging page in your browser. Click on the This Firefox option in the sidebar. Select the Load Temporary Add-on button and choose the manifest.json file from your project folder.
 
+For Mozilla Add-ons submissions, upload `ytm-extension/ytm-extension.zip` from the Developer Hub. The ZIP contains only `manifest.json` and `content.js` at its root. The extension reads playback metadata on YouTube Music and sends it to the local bridge at `http://localhost:3000`; it does not include telemetry or send data to the project maintainer. The bridge and Discord Desktop are separate requirements and are not included in the add-on.
+
 
 ##### Windows Installer
 

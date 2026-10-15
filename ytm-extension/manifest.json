@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Music Discord RPC",
-  "version": "1.11",
+  "version": "1.15",
   "description": "Discord Rich Presence for YouTube Music",
   "browser_specific_settings": {
     "gecko": {
@@ -13,17 +13,14 @@
       }
     }
   },
-  "permissions": [
-    "tabs"
-  ],
   "host_permissions": [
-    "*://music.youtube.com/*",
+    "https://music.youtube.com/*",
     "http://localhost:3000/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "*://music.youtube.com/*"
+        "https://music.youtube.com/*"
       ],
       "js": [
         "content.js"
